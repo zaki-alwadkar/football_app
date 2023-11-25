@@ -14,19 +14,20 @@ This app performs simple webscraping of NFL Football player stats data (focusing
 """)
 
 st.sidebar.header('User Input Features')
-selected_year = st.sidebar.selectbox('Year', list(reversed(range(1990,2020))))
+selected_year = st.sidebar.selectbox('Year', list(reversed(range(1990, 2020))))
 
 # Web scraping of NFL player stats
 # https://www.pro-football-reference.com/years/2019/rushing.htm
 @st.cache
 def load_data(year):
     url = "https://www.pro-football-reference.com/years/" + str(year) + "/rushing.htm"
-    html = pd.read_html(url, header = 1)
+    html = pd.read_html(url, header=1)
     df = html[0]
-    raw = df.drop(df[df.Age == 'Age'].index) # Deletes repeating headers in content
+    raw = df.drop(df[df.Age == 'Age'].index)  # Deletes repeating headers in content
     raw = raw.fillna(0)
     playerstats = raw.drop(['Rk'], axis=1)
     return playerstats
+
 playerstats = load_data(selected_year)
 
 # Sidebar - Team selection
@@ -34,7 +35,7 @@ sorted_unique_team = sorted(playerstats.Tm.unique())
 selected_team = st.sidebar.multiselect('Team', sorted_unique_team, sorted_unique_team)
 
 # Sidebar - Position selection
-unique_pos = ['RB','QB','WR','FB','TE']
+unique_pos = ['RB', 'QB', 'WR', 'FB', 'TE']
 selected_pos = st.sidebar.multiselect('Position', unique_pos, unique_pos)
 
 # Filtering data
@@ -54,16 +55,16 @@ def filedownload(df):
 
 st.markdown(filedownload(df_selected_team), unsafe_allow_html=True)
 
-# Heatmap
-if st.button('Intercorrelation Heatmap'):
-    st.header('Intercorrelation Matrix Heatmap')
-    df_selected_team.to_csv('output.csv',index=False)
-    df = pd.read_csv('output.csv')
-
-    corr = df.corr()
-    mask = np.zeros_like(corr)
-    mask[np.triu_indices_from(mask)] = True
-    with sns.axes_style("white"):
-        f, ax = plt.subplots(figsize=(7, 5))
-        ax = sns.heatmap(corr, mask=mask, vmax=1, square=True)
-    st.pyplot()
+# Bar Graph
+if st.button('Bar Graph - Total Rushing Yards'):
+    st.header('Bar Graph - Total Rushing Yards')
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Convert 'Yds' column to numeric values
+    df_selected_team['Yds'] = pd.to_numeric(df_selected_team['Yds'], errors='coerce')
+    
+    total_rushing_yards = df_selected_team.groupby('Tm')['Yds'].sum().sort_values(ascending=False)
+    total_rushing_yards.plot(kind='bar', ax=ax, color='skyblue')
+    ax.set_ylabel('Total Rushing Yards')
+    ax.set_xlabel('Team')
+    st.pyplot(fig)
