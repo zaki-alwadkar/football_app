@@ -68,3 +68,72 @@ if st.button('Bar Graph - Total Rushing Yards'):
     ax.set_ylabel('Total Rushing Yards')
     ax.set_xlabel('Team')
     st.pyplot(fig)
+
+
+# Scatter Plot
+if st.button('Scatter Plot - Total Rushing Yards vs Attempts'):
+    st.header('Scatter Plot - Total Rushing Yards vs Attempts')
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Convert numeric columns to numeric types
+    numeric_columns = ['Att', 'Yds', 'TD', 'Lng', '1D', 'Y/A', 'Y/G', 'Fmb']
+    for col in numeric_columns:
+        df_selected_team[col] = pd.to_numeric(df_selected_team[col], errors='coerce')
+
+    # Plot scatter plot
+    sns.scatterplot(data=df_selected_team, x='Att', y='Yds', hue='Tm', s=100, ax=ax)
+    
+    ax.set_ylabel('Total Rushing Yards')
+    ax.set_xlabel('Total Rushing Attempts')
+    ax.set_title('Scatter Plot - Total Rushing Yards vs Attempts')
+    st.pyplot(fig)
+
+# Pie Chart
+if st.button('Pie Chart - Total Rushing Yards by Team'):
+    st.header('Pie Chart - Total Rushing Yards by Team')
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Convert 'Yds' column to numeric values
+    df_selected_team['Yds'] = pd.to_numeric(df_selected_team['Yds'], errors='coerce')
+
+    total_rushing_yards = df_selected_team.groupby('Tm')['Yds'].sum().sort_values(ascending=False)
+    
+    # Plot pie chart
+    total_rushing_yards.plot(kind='pie', autopct='%1.1f%%', startangle=90, ax=ax)
+    
+    ax.set_ylabel('')
+    ax.set_title('Pie Chart - Total Rushing Yards by Team')
+    st.pyplot(fig)
+
+
+# 3D Scatter Plot
+if st.button('3D Scatter Plot - Rushing Stats'):
+    st.header('3D Scatter Plot - Rushing Stats')
+    fig = plt.figure(figsize=(12, 8))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Convert numeric columns to numeric types
+    numeric_columns = ['Att', 'Yds', 'TD']
+    for col in numeric_columns:
+        df_selected_team[col] = pd.to_numeric(df_selected_team[col], errors='coerce')
+
+    # Scatter plot
+    scatter = ax.scatter(df_selected_team['Att'], df_selected_team['Yds'], df_selected_team['TD'], c=df_selected_team['Yds'], cmap='viridis', s=50)
+
+    # Colorbar
+    cbar = fig.colorbar(scatter)
+    cbar.set_label('Total Rushing Yards')
+
+    ax.set_xlabel('Total Rushing Attempts')
+    ax.set_ylabel('Total Rushing Yards')
+    ax.set_zlabel('Total Touchdowns')
+    ax.set_title('3D Scatter Plot - Rushing Stats')
+
+    st.pyplot(fig)
+    
+    
+    
+
+
+ 
+
